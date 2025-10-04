@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Page</title>
+    
+<!-- INVOICE FORM -->
+    <form action="" method="">
+    <h1 style="text-align: center;">INVOICE FORM</h1>
+    <!-- <label>INVOICE</label> ye lebal cente me okr krna hai -->
+    
+    <hr>
+    <div style="display: flex; justify-content: space-between; padding-bottom: 100px;">
+
+        <div style="flex-basis: 50%; text-align: left; padding-left: 100px;">
+            <h3>Customer Details</h3>
+
+            <label>CUSTOMER NAME</label>
+            <input type="text" id="customerName" name="customerName" placeholder="Enter Customer Name" required><br>
+
+            <label>ADDRESS</label>
+            <input type="text" id="address" name="address" placeholder="Enter Address" required><br>
+
+            <label>CITY</label>
+            <input type="text" id="city" name="city" placeholder="Enter City" required><br>
+        </div>
+        <div style="flex-basis: 50%; text-align: right; padding-right: 10%; justify-content: left; align-items: center; padding-right: 100px;">
+            <h3>Invoice Details</h3>
+
+            <label>INVOICE NO</label>  
+            <input type="number" id="invoiceNo" name="invoiceNo" placeholder="Enter Invoice No" required><br>
+
+            <label>INVOICE DATE</label>
+            <input type="date" id="invoiceDate" name="invoiceDate" required><br>
+
+        </div>
+    </div>
+    
+    
+
+    
+    <!-- table with 6 columns and user can add rows dynamically with add row button ye div fomate me rakhna hai ok-->
+    <h2 style="text-align: center;">INVOICE</h2>
+    <table border="1px solid black" style="width: 100%; text-align: center;">
+        <tr>
+            <th>S.No.</th>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>Rate</th>
+            <th>Amount</th>
+            <th><button>+</button></th>
+        </tr>
+            <td>1</td>
+            <td><input type="text" placeholder="Enter Description"></td>
+            <td><input type="number" placeholder="Enter Quantity"></td>
+            <td><input type="number" placeholder="Enter Rate"></td> 
+            <td><input type="number" placeholder="Amount" readonly></td>
+            <td><button>-</button></td>
+        
+    </table>
+    <hr>
+    <div style="text-align: right; margin-top: 40px; margin-right: 100px;">
+        <h2>Total Amount: <span id="totalAmount">0</span></h2>
+    </div>
+    <div style="text-align: right; margin-top: 20px; margin-right: 100px;">
+        <h2>GST: <span id="gstAmount">0</span></h2>
+    </div>
+    <div style="text-align: right; margin-top: 20px; margin-right: 100px;">
+        <h2>Grand Total: <span id="grandTotal">0</span></h2>
+    </div>
+    
+
+    
+    
+
+    
+
+    <script>
+        // JavaScript to handle dynamic row addition and calculation ish muje submit krne pr total, gst and grand total calculate karna
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.querySelector('table');
+            const totalAmountSpan = document.getElementById('totalAmount');
+            const gstAmountSpan = document.getElementById('gstAmount');
+            const grandTotalSpan = document.getElementById('grandTotal');
+
+            function calculateTotals() {
+                let total = 0;
+                const rows = table.querySelectorAll('tr');
+                rows.forEach((row, index) => {
+                    if (index === 0) return; // Skip header row karva mate 
+                    const qtyInput = row.querySelector('input[placeholder="Enter Quantity"]');
+                    const rateInput = row.querySelector('input[placeholder="Enter Rate"]');
+                    const amountInput = row.querySelector('input[placeholder="Amount"]');
+
+                    const quantity = parseFloat(qtyInput.value) || 0;//quntity and rate ni value 0 karvane ke liye
+                    const rate = parseFloat(rateInput.value) || 0; //rate ni value 0 karvana ke liye
+                    const amount = quantity * rate;//amount ki value calculate karvane ke liye
+                    amountInput.value = amount.toFixed(2);//amount ko decimal point ke bad 2 digits tak show karna hai
+                    total += amount;//total ko amount se add karna hai
+                });
+                totalAmountSpan.textContent = total.toFixed(2);
+                const gst = total * 0.18; // Assuming 18% GST
+                gstAmountSpan.textContent = gst.toFixed(2);//gst ko decimal point ke bad 2 digits tak show karna hai
+                grandTotalSpan.textContent = (total + gst).toFixed(2);//grand total ko decimal point ke bad 2 digits tak show karna hai
+            }
+            
+            // event listener jo hai table pr input change hone pr calculateTotals function ko call karega
+            table.addEventListener('input', calculateTotals);
+
+            table.addEventListener('click', function(event) {// Event delegation for buttons
+                if (event.target.tagName === 'BUTTON') {// Check if a button was clicked
+                    if (event.target.textContent === '+') {// Check if it's an "Add Row" button
+                        const newRow = document.createElement('tr');// Create new row
+                        newRow.innerHTML = `
+                            <td>${table.rows.length}</td>
+                            <td><input type="text" placeholder="Enter Description"></td>
+                            <td><input type="number" placeholder="Enter Quantity"></td>
+                            <td><input type="number" placeholder="Enter Rate"></td> 
+                            <td><input type="number" placeholder="Amount" readonly></td>
+                            <td><button>-</button></td>
+                        `;
+                        table.appendChild(newRow);// Append the new row to the table
+                    } else if (event.target.textContent === '-') {// Check if it's a "Remove Row" button
+                        const row = event.target.closest('tr');// Find the closest row to the clicked button
+                        if (table.rows.length > 2) { // Ensure at least one row remains
+                            row.remove();
+                            // Re-number the S.No. columns after removal
+                            table.querySelectorAll('tr').forEach((row, index) => {
+                                if (index !== 0) { // Skip header row
+                                    row.cells[0].textContent = index;// Update S.No. columns
+                                }
+                            });
+                        }
+                    }
+                }
+                calculateTotals(); // Recalculate totals when a row is added or removed
+
+                
+            });
+        }); 
+    </script>
+    </form>
+</html>
